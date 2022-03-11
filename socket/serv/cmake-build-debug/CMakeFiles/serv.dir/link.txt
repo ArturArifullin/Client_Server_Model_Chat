@@ -1,0 +1,1 @@
+/usr/bin/clang++ -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/serv.dir/main.cpp.o CMakeFiles/serv.dir/profile.cpp.o CMakeFiles/serv.dir/server.cpp.o -o serv 

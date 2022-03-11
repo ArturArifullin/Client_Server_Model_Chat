@@ -1,0 +1,42 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/serv/main.cpp
+iostream
+-
+sys/socket.h
+-
+sys/types.h
+-
+netinet/in.h
+-
+cstdlib
+-
+sys/time.h
+-
+cstring
+-
+unistd.h
+-
+profile.h
+/Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/serv/profile.h
+server.h
+/Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/serv/server.h
+
+/Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/serv/profile.h
+iostream
+-
+set
+-
+
+/Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/serv/server.h
+string
+-
+profile.h
+/Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/serv/profile.h
+
