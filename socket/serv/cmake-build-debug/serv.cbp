@@ -80,6 +80,12 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/serv/clienthandler.cpp">
+			<Option target="serv"/>
+		</Unit>
+		<Unit filename="/Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/serv/clienthandler.h">
+			<Option target="serv"/>
+		</Unit>
 		<Unit filename="/Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/serv/main.cpp">
 			<Option target="serv"/>
 		</Unit>

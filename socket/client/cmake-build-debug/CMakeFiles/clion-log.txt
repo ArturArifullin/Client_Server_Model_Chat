@@ -13,4 +13,4 @@
 -- Detecting CXX compile features - done
 -- Configuring done
 -- Generating done
--- Build files have been written to: /Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/client/cmake-build-debug
+-- Build files have been written to: /Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/client

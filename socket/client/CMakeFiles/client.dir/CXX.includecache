@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/client/main.cpp
+iostream
+-
+sys/socket.h
+-
+netinet/in.h
+-
+cstdlib
+-
+unistd.h
+-
+string
+-
+csignal
+-
+

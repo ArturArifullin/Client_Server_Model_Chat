@@ -86,6 +86,7 @@ void processingStr(char* str){
     int space_presence = 0;
 
     for( int i = 0; str[i] != 0; i++ ){
+
         if ( begin == 1 && str[i] != ' '){
             begin = 0;
             queue_char.push(str[i]);

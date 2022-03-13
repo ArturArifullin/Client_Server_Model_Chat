@@ -129,6 +129,30 @@ serv/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/serv.dir/build.make CMakeFiles/serv.dir/build
 .PHONY : serv/fast
 
+clienthandler.o: clienthandler.cpp.o
+.PHONY : clienthandler.o
+
+# target to build an object file
+clienthandler.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/serv.dir/build.make CMakeFiles/serv.dir/clienthandler.cpp.o
+.PHONY : clienthandler.cpp.o
+
+clienthandler.i: clienthandler.cpp.i
+.PHONY : clienthandler.i
+
+# target to preprocess a source file
+clienthandler.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/serv.dir/build.make CMakeFiles/serv.dir/clienthandler.cpp.i
+.PHONY : clienthandler.cpp.i
+
+clienthandler.s: clienthandler.cpp.s
+.PHONY : clienthandler.s
+
+# target to generate assembly for a file
+clienthandler.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/serv.dir/build.make CMakeFiles/serv.dir/clienthandler.cpp.s
+.PHONY : clienthandler.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -210,6 +234,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... serv"
+	@echo "... clienthandler.o"
+	@echo "... clienthandler.i"
+	@echo "... clienthandler.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

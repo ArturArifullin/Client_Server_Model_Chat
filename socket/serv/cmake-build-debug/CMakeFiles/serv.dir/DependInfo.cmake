@@ -8,6 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
+  "/Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/serv/clienthandler.cpp" "/Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/serv/cmake-build-debug/CMakeFiles/serv.dir/clienthandler.cpp.o"
   "/Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/serv/main.cpp" "/Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/serv/cmake-build-debug/CMakeFiles/serv.dir/main.cpp.o"
   "/Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/serv/profile.cpp" "/Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/serv/cmake-build-debug/CMakeFiles/serv.dir/profile.cpp.o"
   "/Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/serv/server.cpp" "/Users/arturarifullin/Desktop/C_Programs/4 семестр/socket/serv/cmake-build-debug/CMakeFiles/serv.dir/server.cpp.o"
