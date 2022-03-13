@@ -17,8 +17,6 @@ netinet/in.h
 -
 cstdlib
 -
-sys/time.h
--
 cstring
 -
 unistd.h

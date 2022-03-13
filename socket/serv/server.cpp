@@ -119,3 +119,24 @@ int spaceNum(const char* buf){
     }
     return count_space;
 }
+
+int lengthOfFirtsWord(const char* buf){
+    int i;
+    for(i = 0; !(buf[i] == 0 || buf[i] == ' ' || buf[i] == '\n' || buf[i] == '\r'); i++){
+    }
+    return i;
+}
+
+int firstDisc(int* connections, int max_client){
+    for(int i = 0; i < max_client; i++){
+        if (connections[i] == -1)
+            return i;
+    }
+    return -1;
+}
+
+int initConnections(int* connections, int max_client){
+    for (int i = 0; i < max_client; i++)
+        connections[i] = -1;
+
+}

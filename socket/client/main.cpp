@@ -42,7 +42,11 @@ int main() {
         int select_result =  select(max_d+1, &readfds, 0, 0, 0);
 
         if ( FD_ISSET(connection, &readfds) ){
-            recv(connection, buf, SIZEOF_BUF, 0);
+            int boolean = recv(connection, buf, SIZEOF_BUF, 0);
+            if ( boolean == 0 ) {
+                std::cout << "You're disconnected" << std::endl;                    // disconnect
+                exit(0);
+            }
             std::cout << buf << std::endl;
         }
 

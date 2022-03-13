@@ -11,7 +11,7 @@
 #include "profile.h"
 
 int consistingEnd( char* c_string );
-void clientHandler( char* buf, int user_d, int id );
+void clientHandler( char* buf, int user_d, int index );
 void mapIntoStdSring( char* str );
 int correctName( char*  buf );
 int nameIsNotUsed( std::string str, profile* profiles, int maxclient);
@@ -19,5 +19,7 @@ int findProfile( profile* profiles, int Count, std::string usrname);
 std::string makePrivateMsg(std::string rcvr, std::string sender, std::string message);
 void processingStr(char* str);
 int spaceNum(const char* buf);
-
+int lengthOfFirtsWord(const char* buf);
+int firstDisc(int* connections, int max_client);
+int initConnections(int* connections, int max_client);
 #endif //SERV_SERVER_H

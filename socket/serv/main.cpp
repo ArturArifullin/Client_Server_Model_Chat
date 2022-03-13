@@ -3,21 +3,21 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <cstdlib>
-#include <sys/time.h>
 #include <cstring>
 #include <unistd.h>
 #include "profile.h"
 #include "server.h"
 
 const std::string null_string = "\0";
-int connections[MAXCLIENT]= {0};
-int Count = 0; //число подключенных клиентов
+int connections[MAXCLIENT];
+int connect_count = 0;//число подключенных клиентов
+int disconnect_count = 0;
 char buf[SIZEOF_BUF];
 profile profiles[MAXCLIENT];
 
-void sendToAll( const char* buf, int id){
-    for ( int i = 0; i <= Count - 1; i++){
-        if ( i != id)
+void sendToAll( const char* buf, int index){
+    for (int i = 0; i <= connect_count - 1; i++ ){
+        if ( i != index && profiles[i].online == 1 )
             send(connections[i], buf, SIZEOF_BUF, 0);
     }
 }
@@ -29,8 +29,8 @@ int sendPrivateMsg( std::string usrname, std::string msg, int sender_id){
         send(sender_id, error.c_str(), SIZEOF_BUF, 0);
     }
 
-    int rcv_id = findProfile(profiles, Count, usrname);
-    if ( rcv_id == -1 ){
+    int rcv_id = findProfile(profiles, connect_count, usrname);
+    if ( rcv_id == -1 || profiles[rcv_id].online == 0 ){
         std::string error= "###User is not online";
         send(sender_id, error.c_str(), SIZEOF_BUF, 0);
         return 0;
@@ -43,17 +43,34 @@ int sendPrivateMsg( std::string usrname, std::string msg, int sender_id){
 
 }
 
-//void sendPrivateMsg()
+void disconnect( int user_d, std::string username, int index ){
+    //shutting down connection and deletting deskriptor
+    shutdown(user_d, 2);
+    close(user_d);
 
-int lengthOfFirtsWord(const char* buf){
-    int i;
-    for(i = 0; !(buf[i] == 0 || buf[i] == ' ' || buf[i] == '\n' || buf[i] == '\r'); i++){
+    //making string to inform other users about disconnecting
+    if ( !profiles[index].user_name.empty() ) {
+        std::string temp = "*** ";
+        temp += username;
+        temp += " is diconnected";
+        sendToAll(temp.c_str(), user_d);
     }
-    return i;
+    //inform administrator of serever about disconnecting
+    if ( !profiles[index].user_name.empty() )
+        std::cout << profiles[index].user_name << " is disconnected" << std::endl;
+    else
+        std::cout << "New user" << " is disconnected" << std::endl;
+
+    //preparing to reform the structure of data
+    profiles[index].online = 0;
+    profiles[index].user_name.clear();
+    profiles[index].privates.clear();
+    connections[index] = -1;
+    disconnect_count++;
 }
 
-void clientHandler( char* buf, int user_d, int id ) {
-    //We have to change buf
+void clientHandler( char* buf, int user_d, int index ) {
+    //We have to change buf, becuase we need string
     mapIntoStdSring(buf);
     processingStr(buf);
 
@@ -65,20 +82,22 @@ void clientHandler( char* buf, int user_d, int id ) {
     }
 
     //First, user make his name
-    if ( profiles[id].user_name.empty() ){
+    if ( profiles[index].user_name.empty() ){
         if ( correctName(buf) ){
             std::string temp_1 = buf;
             if ( nameIsNotUsed(temp_1, profiles, MAXCLIENT) ) {
-                profiles[id].user_name = temp_1 + null_string;
-                std::cout << "Name of new user: " << profiles[id].user_name << ". His id: " << id << std::endl;
+                profiles[index].user_name = temp_1 + null_string;
+                std::cout << "Name of new user: " << profiles[index].user_name << std::endl;
 
                 std::string msg = "** New User: ";
-                std::string temp_2 = msg + profiles[id].user_name;
-                sendToAll(temp_2.c_str(), id);
+                std::string temp_2 = msg + profiles[index].user_name;
+                sendToAll(temp_2.c_str(), index);
 
                 std::string congat = "### Glad to see you, ";
-                congat += profiles[id].user_name;
+                congat += profiles[index].user_name;
                 send(user_d, congat.c_str(), SIZEOF_BUF, 0);
+
+                profiles[index].online = 1;
             }
             else{
                 std::string msg = "###Name is used by other user of chat";
@@ -96,14 +115,15 @@ void clientHandler( char* buf, int user_d, int id ) {
         if ( temp_1 == "\\users"){
             std::string temp_2 = "** List of online users (the names are listed via <): ";
             send(user_d, temp_2.c_str(), SIZEOF_BUF, 0);
-            for ( int i = 0; i < Count; i++) {
-                std::string temp_3 = ">";
-                temp_3 +=  profiles[i].user_name;
-                if ( i == id )
-                    temp_3 += " (its you!)";
-                send(user_d, temp_3.c_str(), SIZEOF_BUF, 0);
+            for (int i = 0; i < connect_count; i++) {
+                if ( profiles[i].online == 1 ) {
+                    std::string temp_3 = ">";
+                    temp_3 += profiles[i].user_name;
+                    if (i == index)
+                        temp_3 += " (its you!)";
+                    send(user_d, temp_3.c_str(), SIZEOF_BUF, 0);
+                }
             }
-
         }
         else if ( temp_1 == "\\help"){
             std::string temp_2 = "** You can you following commands: ";
@@ -123,22 +143,35 @@ void clientHandler( char* buf, int user_d, int id ) {
             std::string msg = temp_1.substr(10 + size, temp_1.size() - 10 - size);
 
             //sending
-            if ( sendPrivateMsg(usrname, msg, id) ) {
-                profiles[id].privates.insert(usrname);
+            if ( sendPrivateMsg(usrname, msg, index) ) {
+                profiles[index].privates.insert(usrname);
             }
         }
         else if( temp_1 == "\\privates"){
             //just send privates
             std::string msg_1 = "You've sent private msg to this users:";
             send(user_d, msg_1.c_str(), SIZEOF_BUF, 0);
-            for (const auto& private_profile : profiles[id].privates) {
+            for (const auto& private_profile : profiles[index].privates) {
                 std::string t = ">";
                 t += private_profile;
                 send(user_d, t.c_str(), SIZEOF_BUF, 0);
             }
         }
-        else if( temp_1 == "\\quit"){
-            //quit from server
+        else if( temp_1.substr(0, 5) == "\\quit"){
+            // quit from server
+            if ( temp_1.size() > 5 ) {
+                std::string message = temp_1.substr(6, temp_1.size() - 6);
+
+                std::string temp_2 = "[";
+                temp_2 += "farewell message from ";
+                temp_2 += profiles[index].user_name;
+                temp_2 += "]: ";
+                temp_2 += message;
+
+                sendToAll(temp_2.c_str(), index);
+            }
+
+            disconnect(user_d, profiles[index].user_name, index);
         }
         else{
             //command is not added or not correct
@@ -148,9 +181,9 @@ void clientHandler( char* buf, int user_d, int id ) {
     }
     else{
         //just send message to all
-        std::string msg = profiles[id].make_usr_name(buf);
+        std::string msg = profiles[index].make_usr_name(buf);
         const char* str = msg.c_str();
-        sendToAll(str, id);
+        sendToAll(str, index);
         std::cout << str << std::endl;
     }
 
@@ -158,6 +191,9 @@ void clientHandler( char* buf, int user_d, int id ) {
 
 
 int main() {
+    initConnections(connections, MAXCLIENT);
+
+
     struct sockaddr_in addr = sockaddr_in{};
     addr.sin_addr.s_addr = INADDR_ANY;
     addr.sin_port = htons(1024);
@@ -172,16 +208,22 @@ int main() {
     }
 
     while(1){
+
         fd_set readfds;
         int max_d = sListen;
         FD_ZERO(&readfds);
         FD_SET(sListen, &readfds);
         FD_SET(STDINPUT, &readfds);
 
-        for( int i = 1; i <= Count; i++ ){
-            FD_SET(connections[i-1], &readfds);
-            if ( connections[i-1] > max_d )
-                max_d = connections[i-1];
+        //reform!
+
+
+        for(int i = 1; i <= connect_count; i++ ){
+            if ( connections[i-1] != -1 ) {
+                FD_SET(connections[i - 1], &readfds);
+                if (connections[i - 1] > max_d)
+                    max_d = connections[i - 1];
+            }
         }
 
         int select_result =  select(max_d+1, &readfds, 0, 0, 0);
@@ -193,18 +235,24 @@ int main() {
         }
 
         //Message from listen. Maybe there is new connection
-        if ( FD_ISSET(sListen, &readfds) && ( Count <= MAXCLIENT ) ){
+        if ( FD_ISSET(sListen, &readfds) && (connect_count <= MAXCLIENT ) ){
             int new_connection = accept(sListen, (struct sockaddr *) (&addr), (socklen_t *) &size_of_addr);
             if (new_connection == 0) {
                 std::cout << "Error in connecting" << std::endl;
             } else {
-                std::cout << "New client is connected. His id: "<< Count << std::endl;
+                std::cout << "New client is connected." << std::endl;
             }
             std::string hello= "### Welcome to Arthur's server. Write your username";
             send(new_connection, hello.c_str(), SIZEOF_BUF, 0);
 
-            Count++;
-            connections[Count-1] = new_connection; //!!!! Work about it
+            connect_count++;
+            int temp = firstDisc(connections, MAXCLIENT);
+            if ( temp == -1 ){
+                std::cout << "I cant connect new usew" << std::endl;
+            }
+            else {
+                connections[temp] = new_connection; //!!!! Work about it
+            }
         }
 
         //Server admin tries to do something
@@ -214,20 +262,26 @@ int main() {
         }
 
         //Check our clients, somebody wants to send something for us
-        for( int i = 1; i <= Count; i++ ){
-            if( FD_ISSET(connections[i-1], &readfds) ){
-                buf[0] = 0;
-                recv(connections[i-1], buf, SIZEOF_BUF, 0);
+        for(int i = 1; i <= connect_count; i++ ){
+            if ( connections[i-1] != -1 ) {
+                if (FD_ISSET(connections[i - 1], &readfds)) {
+                    buf[0] = 0;
+                    int index = i - 1;
 
-                if( !consistingEnd(buf) ){
-                    std::string error = "### Error: try to send shorter message";
-                    send( connections[i-1], error.c_str(), SIZEOF_BUF, 0 );
-                    continue;
+                    int boolean = recv(connections[i - 1], buf, SIZEOF_BUF, 0);
+                    if (boolean == 0) {
+                        disconnect(connections[index], profiles[index].user_name, index);
+                        continue;
+                    }
+
+                    if (!consistingEnd(buf)) {
+                        std::string error = "### Error: try to send shorter message";
+                        send(connections[i - 1], error.c_str(), SIZEOF_BUF, 0);
+                        continue;
+                    }
+
+                    clientHandler(buf, connections[i - 1], index);
                 }
-
-                //Each client is bound with him unic socket, number of socket is id
-                int id= i-1;
-                clientHandler(buf, connections[i-1], id);
             }
         }
     }
